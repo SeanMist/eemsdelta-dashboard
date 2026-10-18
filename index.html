@@ -3,144 +3,210 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delfzijl Live Dashboard</title>
+  <title>Delfzijl Live Carousel</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: #0f172a;
+      background-color: #090d16;
       color: #f8fafc;
       font-family: system-ui, -apple-system, sans-serif;
-      padding: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
-    .dashboard {
-      width: 100%;
-      max-width: 480px;
+    
+    .card-container {
+      width: 90vw;
+      max-width: 420px;
+      height: 220px;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: #1e293b;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid #334155;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-    .header {
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.6s ease-in-out, visibility 0.6s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .slide-title {
+      font-size: 0.9rem;
       color: #38bdf8;
-      margin-bottom: 16px;
-      border-bottom: 1px solid #334155;
-      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+
+    .value-big {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
     }
-    .card {
-      background: #0f172a;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #334155;
+
+    .subtitle {
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-top: 6px;
     }
-    .card-full { grid-column: span 2; }
-    .card-title { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; }
-    .card-value { font-size: 1.25rem; font-weight: bold; color: #f1f5f9; }
+
+    /* RDW Kenteken Geel Plaatje */
     .license-plate {
       background: #facc15;
       color: #000;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      display: inline-block;
-      border: 2px solid #000;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      border: 3px solid #000;
       font-family: monospace;
-      font-size: 1.3rem;
+      font-size: 2.2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
-    .footer {
-      margin-top: 12px;
-      text-align: center;
-      font-size: 0.7rem;
+
+    /* Voortgangsindicatoren onderin */
+    .dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #334155;
+      transition: background 0.3s;
+    }
+    .dot.active {
+      background: #38bdf8;
+      width: 24px;
+      border-radius: 5px;
+    }
+
+    .last-update {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.75rem;
       color: #64748b;
     }
   </style>
 </head>
 <body>
 
-  <div class="dashboard">
-    <div class="header">DELFZIL LIVE DASHBOARD</div>
-
-    <div class="grid">
-      <!-- 1. RDW Kenteken -->
-      <div class="card card-full">
-        <div class="card-title">Laatst Uitgegeven Kenteken (RDW)</div>
-        <div id="kenteken" class="license-plate">Laden...</div>
-      </div>
-
-      <!-- 2. Weer Delfzijl -->
-      <div class="card">
-        <div class="card-title">Weer Delfzijl</div>
-        <div id="weer-temp" class="card-value">-- °C</div>
-        <div id="weer-wind" style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">Wind: -- km/h</div>
-      </div>
-
-      <!-- 3. Waterstand Delfzijl -->
-      <div class="card">
-        <div class="card-title">Waterstand Eems</div>
-        <div id="waterstand" class="card-value">-- cm</div>
-        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">t.o.v. NAP (Delfzijl)</div>
-      </div>
-
-      <!-- 4. N33 Verkeer -->
-      <div class="card card-full">
-        <div class="card-title">Verkeer N33 / Regio</div>
-        <div id="verkeer" class="card-value" style="font-size: 0.95rem; color: #4ade80;">Geen Bijzonderheden</div>
-      </div>
+  <div class="card-container">
+    <!-- SLIDE 1: RDW KENTEKEN -->
+    <div class="slide active">
+      <div class="slide-title">RDW Laatste Kenteken</div>
+      <div id="kenteken" class="license-plate">...</div>
+      <div class="subtitle">Nederland Live</div>
     </div>
 
-    <div class="footer" id="last-update">Laatste update: Nog niet ververst</div>
+    <!-- SLIDE 2: WEER DELFZIJL -->
+    <div class="slide">
+      <div class="slide-title">Actueel Weer Delfzijl</div>
+      <div id="weer-temp" class="value-big">-- °C</div>
+      <div id="weer-wind" class="subtitle">Wind: -- km/h</div>
+    </div>
+
+    <!-- SLIDE 3: WATERSTAND DELFZIJL -->
+    <div class="slide">
+      <div class="slide-title">Waterstand Eems / Delfzijl</div>
+      <div id="waterstand" class="value-big" style="color: #38bdf8;">-- cm</div>
+      <div class="subtitle">t.o.v. NAP</div>
+    </div>
+
+    <!-- SLIDE 4: VERKEER N33 -->
+    <div class="slide">
+      <div class="slide-title">Verkeersstatus N33</div>
+      <div id="verkeer" class="value-big" style="color: #4ade80; font-size: 1.6rem;">Geen Hinder</div>
+      <div class="subtitle">Regio Delfzijl</div>
+    </div>
   </div>
 
+  <!-- Bollen voor actieve slide -->
+  <div class="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <div id="last-update" class="last-update">Update: Laden...</div>
+
   <script>
-    async function updateDashboard() {
-      // 1. Live RDW Kenteken
-      try {
-        const rdwRes = await fetch('https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1&$order=:id%20DESC');
-        const rdwData = await rdwRes.json();
-        if (rdwData.length > 0) {
-          document.getElementById('kenteken').innerText = rdwData[0].kenteken;
-        }
-      } catch (e) { console.error('RDW fout:', e); }
+    // --- 1. SLIDESHOW LOGICA ---
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
 
-      // 2. Live Weer Delfzijl (Open-Meteo)
-      try {
-        const weerRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.3342&longitude=6.9239&current_weather=true');
-        const weerData = await weerRes.json();
-        document.getElementById('weer-temp').innerText = weerData.current_weather.temperature + ' °C';
-        document.getElementById('weer-wind').innerText = 'Wind: ' + weerData.current_weather.windspeed + ' km/h';
-      } catch (e) { console.error('Weer fout:', e); }
+    function nextSlide() {
+      slides[currentSlide].classList.remove('active');
+      dots[currentSlide].classList.remove('active');
 
-      // 3. Live Waterstand Delfzijl (Rijkswaterstaat)
-      try {
-        const waterRes = await fetch('https://waterlinenews.rws.nl/api/waterstand/DELFZL');
-        const waterData = await waterRes.json();
-        if (waterData && waterData.value !== undefined) {
-          document.getElementById('waterstand').innerText = Math.round(waterData.value) + ' cm';
-        }
-      } catch (e) { console.error('Waterstand fout:', e); }
+      currentSlide = (currentSlide + 1) % slides.length;
 
-      // Update tijdstip
-      const now = new Date();
-      document.getElementById('last-update').innerText = 'Laatste live update: ' + now.toLocaleTimeString('nl-NL');
+      slides[currentSlide].classList.add('active');
+      dots[currentSlide].classList.add('active');
     }
 
-    // Direct ophalen bij openen en daarna elke 2 minuten automatisch verversen
-    updateDashboard();
-    setInterval(updateDashboard, 120000);
+    // Wissel elke 6 seconden van slide
+    setInterval(nextSlide, 6000);
+
+    // --- 2. LIVE DATA LOGICA (Elke 1 minuut) ---
+    async function updateData() {
+      // 1. RDW Kenteken
+      try {
+        const res = await fetch('https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1&$order=:id%20DESC');
+        const data = await res.json();
+        if (data.length > 0) {
+          document.getElementById('kenteken').innerText = data[0].kenteken;
+        }
+      } catch (e) { console.error('RDW Fout', e); }
+
+      // 2. Weer Delfzijl (Open-Meteo)
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.3342&longitude=6.9239&current_weather=true');
+        const data = await res.json();
+        document.getElementById('weer-temp').innerText = data.current_weather.temperature + ' °C';
+        document.getElementById('weer-wind').innerText = 'Wind: ' + data.current_weather.windspeed + ' km/h';
+      } catch (e) { console.error('Weer Fout', e); }
+
+      // 3. Waterstand Delfzijl (Rijkswaterstaat)
+      try {
+        const res = await fetch('https://waterlinenews.rws.nl/api/waterstand/DELFZL');
+        const data = await res.json();
+        if (data && data.value !== undefined) {
+          document.getElementById('waterstand').innerText = Math.round(data.value) + ' cm';
+        }
+      } catch (e) { console.error('Waterstand Fout', e); }
+
+      // Tijdstip bijwerken
+      const now = new Date();
+      document.getElementById('last-update').innerText = 'Data ververst: ' + now.toLocaleTimeString('nl-NL');
+    }
+
+    // Ophalen bij opstarten en daarna exact elke 60 seconden (1 minuut)
+    updateData();
+    setInterval(updateData, 60000);
   </script>
 </body>
 </html>
