@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delfzijl Live Carousel</title>
+  <title>Delfzijl Live Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #090d16;
       color: #f8fafc;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -18,11 +18,11 @@
       height: 100vh;
       overflow: hidden;
     }
-    
+
     .card-container {
       width: 90vw;
-      max-width: 420px;
-      height: 220px;
+      max-width: 440px;
+      height: 240px;
       position: relative;
     }
 
@@ -32,7 +32,7 @@
       background: #1e293b;
       border: 2px solid #334155;
       border-radius: 16px;
-      padding: 20px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -50,40 +50,49 @@
     }
 
     .slide-title {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #38bdf8;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
     .value-big {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: #ffffff;
     }
 
     .subtitle {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #94a3b8;
       margin-top: 6px;
     }
 
-    /* RDW Kenteken Geel Plaatje */
+    /* RDW Gele Plaat */
     .license-plate {
       background: #facc15;
       color: #000;
-      padding: 10px 20px;
+      padding: 6px 16px;
       border-radius: 8px;
       font-weight: 900;
       letter-spacing: 3px;
       border: 3px solid #000;
       font-family: monospace;
-      font-size: 2.2rem;
+      font-size: 1.8rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      margin-bottom: 8px;
     }
 
-    /* Voortgangsindicatoren onderin */
+    .vehicle-info {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
     .dots {
       display: flex;
       gap: 8px;
@@ -94,7 +103,7 @@
       height: 10px;
       border-radius: 50%;
       background: #334155;
-      transition: background 0.3s;
+      transition: background 0.3s, width 0.3s;
     }
     .dot.active {
       background: #38bdf8;
@@ -113,32 +122,42 @@
 <body>
 
   <div class="card-container">
-    <!-- SLIDE 1: RDW KENTEKEN -->
+    <!-- SLIDE 1: RDW KENTEKEN + VOERTUIG DETAILS -->
     <div class="slide active">
-      <div class="slide-title">RDW Laatste Kenteken</div>
+      <div class="slide-title">RDW Laatst Uitgegeven Kenteken</div>
       <div id="kenteken" class="license-plate">...</div>
-      <div class="subtitle">Nederland Live</div>
+      <div class="vehicle-info">
+        <div id="voertuig-merk" style="font-weight: bold; font-size: 1rem;">Merk & Model laden...</div>
+        <div id="voertuig-details" style="color: #94a3b8; font-size: 0.85rem;">--</div>
+      </div>
     </div>
 
-    <!-- SLIDE 2: WEER DELFZIJL -->
+    <!-- SLIDE 2: ACTUEEL WEER DELFZIJL -->
     <div class="slide">
       <div class="slide-title">Actueel Weer Delfzijl</div>
       <div id="weer-temp" class="value-big">-- °C</div>
       <div id="weer-wind" class="subtitle">Wind: -- km/h</div>
     </div>
 
-    <!-- SLIDE 3: WATERSTAND DELFZIJL -->
+    <!-- SLIDE 3: WEERSVOORSPELLING MORGEN -->
     <div class="slide">
-      <div class="slide-title">Waterstand Eems / Delfzijl</div>
-      <div id="waterstand" class="value-big" style="color: #38bdf8;">-- cm</div>
-      <div class="subtitle">t.o.v. NAP</div>
+      <div class="slide-title">Voorspelling Morgen (Delfzijl)</div>
+      <div id="weer-morgen-temp" class="value-big" style="color: #f59e0b; font-size: 1.8rem;">-- °C / -- °C</div>
+      <div id="weer-morgen-regen" class="subtitle">Neerslag: -- mm</div>
     </div>
 
-    <!-- SLIDE 4: VERKEER N33 -->
+    <!-- SLIDE 4: OPEN-METEO MARINE WATERSTAND -->
     <div class="slide">
-      <div class="slide-title">Verkeersstatus N33</div>
-      <div id="verkeer" class="value-big" style="color: #4ade80; font-size: 1.6rem;">Geen Hinder</div>
-      <div class="subtitle">Regio Delfzijl</div>
+      <div class="slide-title">Zee- / Waterstand Delfzijl (Eems)</div>
+      <div id="waterstand" class="value-big" style="color: #38bdf8;">-- cm</div>
+      <div class="subtitle">Open-Meteo Marine (t.o.v. zeespiegel)</div>
+    </div>
+
+    <!-- SLIDE 5: VERKEER N33 -->
+    <div class="slide">
+      <div class="slide-title">Verkeersstatus N33 / Regio</div>
+      <div id="verkeer" class="value-big" style="color: #4ade80; font-size: 1.6rem;">Geen Bijzonderheden</div>
+      <div class="subtitle">Delfzijl - Appingedam - Zuidbroek</div>
     </div>
   </div>
 
@@ -148,12 +167,13 @@
     <div class="dot"></div>
     <div class="dot"></div>
     <div class="dot"></div>
+    <div class="dot"></div>
   </div>
 
-  <div id="last-update" class="last-update">Update: Laden...</div>
+  <div id="last-update" class="last-update">Data verversen...</div>
 
   <script>
-    // --- 1. SLIDESHOW LOGICA ---
+    // --- 1. SLIDESHOW LOGICA (Wisselt elke 6 seconden) ---
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.dot');
@@ -168,43 +188,75 @@
       dots[currentSlide].classList.add('active');
     }
 
-    // Wissel elke 6 seconden van slide
     setInterval(nextSlide, 6000);
 
-    // --- 2. LIVE DATA LOGICA (Elke 1 minuut) ---
+    // --- 2. LIVE DATA LOGICA (Elke 60 seconden) ---
     async function updateData() {
-      // 1. RDW Kenteken
+      // A. RDW Kenteken & Voertuiggegevens
       try {
         const res = await fetch('https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1&$order=:id%20DESC');
         const data = await res.json();
         if (data.length > 0) {
-          document.getElementById('kenteken').innerText = data[0].kenteken;
-        }
-      } catch (e) { console.error('RDW Fout', e); }
+          const v = data[0];
+          document.getElementById('kenteken').innerText = v.kenteken || 'Onbekend';
+          
+          const merk = v.merk || 'Onbekend merk';
+          const model = v.handelsbenaming || '';
+          document.getElementById('voertuig-merk').innerText = `${merk} ${model}`.trim();
 
-      // 2. Weer Delfzijl (Open-Meteo)
+          const kleur = v.eerste_kleur ? `Kleur: ${v.eerste_kleur}` : '';
+          const datum = v.datum_eerste_toelating ? `Bouwjaar: ${v.datum_eerste_toelating.substring(0,4)}` : '';
+          document.getElementById('voertuig-details').innerText = [kleur, datum].filter(Boolean).join(' | ') || 'Geen details beschikbaar';
+        }
+      } catch (e) {
+        console.error('RDW Fout:', e);
+        document.getElementById('voertuig-merk').innerText = 'Fout bij ophalen RDW';
+      }
+
+      // B. Actueel Weer Delfzijl (Open-Meteo)
       try {
         const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.3342&longitude=6.9239&current_weather=true');
         const data = await res.json();
         document.getElementById('weer-temp').innerText = data.current_weather.temperature + ' °C';
         document.getElementById('weer-wind').innerText = 'Wind: ' + data.current_weather.windspeed + ' km/h';
-      } catch (e) { console.error('Weer Fout', e); }
+      } catch (e) { console.error('Weer Fout:', e); }
 
-      // 3. Waterstand Delfzijl (Rijkswaterstaat)
+      // C. Weersvoorspelling Morgen Delfzijl (Open-Meteo)
       try {
-        const res = await fetch('https://waterlinenews.rws.nl/api/waterstand/DELFZL');
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.3342&longitude=6.9239&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FAmsterdam');
         const data = await res.json();
-        if (data && data.value !== undefined) {
-          document.getElementById('waterstand').innerText = Math.round(data.value) + ' cm';
+        if (data && data.daily) {
+          const maxT = data.daily.temperature_2m_max[1]; // Index 1 is morgen
+          const minT = data.daily.temperature_2m_min[1];
+          const regen = data.daily.precipitation_sum[1];
+          
+          document.getElementById('weer-morgen-temp').innerText = `Max: ${maxT}°C | Min: ${minT}°C`;
+          document.getElementById('weer-morgen-regen').innerText = `Verwachte neerslag: ${regen} mm`;
         }
-      } catch (e) { console.error('Waterstand Fout', e); }
+      } catch (e) { console.error('Voorspelling Fout:', e); }
 
-      // Tijdstip bijwerken
+      // D. Waterstand Delfzijl via Open-Meteo Marine API
+      try {
+        const res = await fetch('https://marine-api.open-meteo.com/v1/marine?latitude=53.3342&longitude=6.9239&current=sea_surface_height');
+        const data = await res.json();
+        if (data && data.current && data.current.sea_surface_height !== undefined) {
+          const cmStand = Math.round(data.current.sea_surface_height * 100);
+          const prefix = cmStand > 0 ? '+' : '';
+          document.getElementById('waterstand').innerText = `${prefix}${cmStand} cm`;
+        } else {
+          document.getElementById('waterstand').innerText = 'Geen data';
+        }
+      } catch (e) {
+        console.error('Marine Waterstand Fout:', e);
+        document.getElementById('waterstand').innerText = 'Fout';
+      }
+
+      // Tijdstip update bijwerken
       const now = new Date();
-      document.getElementById('last-update').innerText = 'Data ververst: ' + now.toLocaleTimeString('nl-NL');
+      document.getElementById('last-update').innerText = 'Live data ververst: ' + now.toLocaleTimeString('nl-NL');
     }
 
-    // Ophalen bij opstarten en daarna exact elke 60 seconden (1 minuut)
+    // Direct eenmaal uitvoeren en daarna elke 60 seconden (1 minuut) herhalen
     updateData();
     setInterval(updateData, 60000);
   </script>
