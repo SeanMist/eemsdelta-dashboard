@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delfzijl Live Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .dashboard {
+      width: 100%;
+      max-width: 480px;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #334155;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .header {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #38bdf8;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .card {
+      background: #0f172a;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .card-full { grid-column: span 2; }
+    .card-title { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; }
+    .card-value { font-size: 1.25rem; font-weight: bold; color: #f1f5f9; }
+    .license-plate {
+      background: #facc15;
+      color: #000;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      display: inline-block;
+      border: 2px solid #000;
+      font-family: monospace;
+      font-size: 1.3rem;
+    }
+    .footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+    <div class="header">DELFZIL LIVE DASHBOARD</div>
+
+    <div class="grid">
+      <!-- 1. RDW Kenteken -->
+      <div class="card card-full">
+        <div class="card-title">Laatst Uitgegeven Kenteken (RDW)</div>
+        <div id="kenteken" class="license-plate">Laden...</div>
+      </div>
+
+      <!-- 2. Weer Delfzijl -->
+      <div class="card">
+        <div class="card-title">Weer Delfzijl</div>
+        <div id="weer-temp" class="card-value">-- °C</div>
+        <div id="weer-wind" style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">Wind: -- km/h</div>
+      </div>
+
+      <!-- 3. Waterstand Delfzijl -->
+      <div class="card">
+        <div class="card-title">Waterstand Eems</div>
+        <div id="waterstand" class="card-value">-- cm</div>
+        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">t.o.v. NAP (Delfzijl)</div>
+      </div>
+
+      <!-- 4. N33 Verkeer -->
+      <div class="card card-full">
+        <div class="card-title">Verkeer N33 / Regio</div>
+        <div id="verkeer" class="card-value" style="font-size: 0.95rem; color: #4ade80;">Geen Bijzonderheden</div>
+      </div>
+    </div>
+
+    <div class="footer" id="last-update">Laatste update: Nog niet ververst</div>
+  </div>
+
+  <script>
+    async function updateDashboard() {
+      // 1. Live RDW Kenteken
+      try {
+        const rdwRes = await fetch('https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1&$order=:id%20DESC');
+        const rdwData = await rdwRes.json();
+        if (rdwData.length > 0) {
+          document.getElementById('kenteken').innerText = rdwData[0].kenteken;
+        }
+      } catch (e) { console.error('RDW fout:', e); }
+
+      // 2. Live Weer Delfzijl (Open-Meteo)
+      try {
+        const weerRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.3342&longitude=6.9239&current_weather=true');
+        const weerData = await weerRes.json();
+        document.getElementById('weer-temp').innerText = weerData.current_weather.temperature + ' °C';
+        document.getElementById('weer-wind').innerText = 'Wind: ' + weerData.current_weather.windspeed + ' km/h';
+      } catch (e) { console.error('Weer fout:', e); }
+
+      // 3. Live Waterstand Delfzijl (Rijkswaterstaat)
+      try {
+        const waterRes = await fetch('https://waterlinenews.rws.nl/api/waterstand/DELFZL');
+        const waterData = await waterRes.json();
+        if (waterData && waterData.value !== undefined) {
+          document.getElementById('waterstand').innerText = Math.round(waterData.value) + ' cm';
+        }
+      } catch (e) { console.error('Waterstand fout:', e); }
+
+      // Update tijdstip
+      const now = new Date();
+      document.getElementById('last-update').innerText = 'Laatste live update: ' + now.toLocaleTimeString('nl-NL');
+    }
+
+    // Direct ophalen bij openen en daarna elke 2 minuten automatisch verversen
+    updateDashboard();
+    setInterval(updateDashboard, 120000);
+  </script>
+</body>
+</html>
